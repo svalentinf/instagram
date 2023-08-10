@@ -16,7 +16,21 @@
     }
   ],
   "type": "project",
-  "require": {},
+  "require": {
+    "php": "^7.4 || ^8.0 || ^8.1 || 8.2",
+    "guzzlehttp/guzzle": "^7.0",
+    "vlucas/phpdotenv": "^5.4"
+  },
+  "autoload": {
+    "psr-4": {
+      "Svalentinf\\InstagramApi\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Test\\": "tests/"
+    }
+  },
   "minimum-stability": "dev",
   "prefer-stable": true
 }
