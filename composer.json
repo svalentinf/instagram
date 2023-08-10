@@ -1,0 +1,22 @@
+{
+  "name": "ismsoft package",
+  "description": "Instagram helper.",
+  "keywords": [
+    "framework",
+    "laravel",
+    "ismsoft"
+  ],
+  "license": "Proprietary",
+  "authors": [
+    {
+      "name": "Valentin Sonu",
+      "email": "valentin.sonu@yahoo.com",
+      "homepage": "https://www.ismsoft.consulting",
+      "role": "Developer"
+    }
+  ],
+  "type": "project",
+  "require": {},
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}
