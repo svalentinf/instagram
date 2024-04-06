@@ -4,13 +4,11 @@ namespace Svalentinf\InstagramApi\Request;
 
 use Svalentinf\InstagramApi\Request;
 
-class RequestContentPublishLimit extends Request
+class MediaRequest extends Request
 {
 
-    public string $method = 'get';
 
-
-    public string $action = 'content_publishing_limit';
+    public string $action = 'media';
 
     /**
      * Makes the raw body of the request.
@@ -18,6 +16,7 @@ class RequestContentPublishLimit extends Request
      */
     protected function makeBody(): void
     {
-        $this->body = [];
+
+        $this->body = $this->container->makeBody();
     }
 }

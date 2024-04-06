@@ -2,6 +2,8 @@
 
 namespace Svalentinf\InstagramApi;
 
+use Svalentinf\InstagramApi\Container\Container;
+
 abstract class Request
 {
     /**
@@ -45,15 +47,17 @@ abstract class Request
 
     public string $action = '';
 
+    public Container $container;
 
     /**
      * Creates a new Request entity.
      *
-     * @param Message $message
-     * @param string  $access_token
+     * @param Container $container
+     * @param string    $access_token
      */
-    public function __construct(string $access_token, string $instagram_user_id, ?int $timeout = null)
+    public function __construct(Container $container, string $access_token, string $instagram_user_id, ?int $timeout = null)
     {
+        $this->container = $container;
         $this->access_token = $access_token;
         $this->instagram_user_id = $instagram_user_id;
         $this->timeout = $timeout ?? static::DEFAULT_REQUEST_TIMEOUT;

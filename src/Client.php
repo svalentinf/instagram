@@ -79,6 +79,7 @@ class Client
 
     private function buildRequestUri(Request $request): string
     {
-        return $this->buildBaseUri() . '/' . $request->instagramUserId(). '/'.$request->action;
+        //send body as shit!
+        return $this->buildBaseUri() . '/' . $request->instagramUserId() . '/' . $request->action . "?" . http_build_query($request->body());;
     }
 }

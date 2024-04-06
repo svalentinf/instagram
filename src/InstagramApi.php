@@ -2,22 +2,25 @@
 
 namespace Svalentinf\InstagramApi;
 
-use Svalentinf\InstagramApi\Message\AudioMessage;
-use Svalentinf\InstagramApi\Message\Contact\ContactName;
-use Svalentinf\InstagramApi\Message\Contact\Phone;
-use Svalentinf\InstagramApi\Message\ContactMessage;
-use Svalentinf\InstagramApi\Message\Document\Document;
-use Svalentinf\InstagramApi\Message\DocumentMessage;
-use Svalentinf\InstagramApi\Message\ImageMessage;
-use Svalentinf\InstagramApi\Message\LocationMessage;
-use Svalentinf\InstagramApi\Message\Media\MediaID;
-use Svalentinf\InstagramApi\Message\OptionsList\Action;
-use Svalentinf\InstagramApi\Message\OptionsListMessage;
-use Svalentinf\InstagramApi\Message\StickerMessage;
-use Svalentinf\InstagramApi\Message\Template\Component;
-use Svalentinf\InstagramApi\Message\TemplateMessage;
-use Svalentinf\InstagramApi\Message\TextMessage;
-use Svalentinf\InstagramApi\Message\VideoMessage;
+use Svalentinf\InstagramApi\Container\AudioMessage;
+use Svalentinf\InstagramApi\Container\Contact\ContactName;
+use Svalentinf\InstagramApi\Container\Contact\Phone;
+use Svalentinf\InstagramApi\Container\ContactMessage;
+use Svalentinf\InstagramApi\Container\Container;
+use Svalentinf\InstagramApi\Container\Document\Document;
+use Svalentinf\InstagramApi\Container\DocumentMessage;
+use Svalentinf\InstagramApi\Container\EmptyContainer;
+use Svalentinf\InstagramApi\Container\ImageMessage;
+use Svalentinf\InstagramApi\Container\LocationMessage;
+use Svalentinf\InstagramApi\Container\Media\MediaID;
+use Svalentinf\InstagramApi\Container\OptionsList\Action;
+use Svalentinf\InstagramApi\Container\OptionsListMessage;
+use Svalentinf\InstagramApi\Container\StickerMessage;
+use Svalentinf\InstagramApi\Container\Template\Component;
+use Svalentinf\InstagramApi\Container\TemplateMessage;
+use Svalentinf\InstagramApi\Container\ImageContainer;
+use Svalentinf\InstagramApi\Container\VideoContainer;
+use Svalentinf\InstagramApi\Request\MediaRequest;
 use Svalentinf\InstagramApi\Request\RequestAudioMessage;
 use Svalentinf\InstagramApi\Request\RequestContactMessage;
 use Svalentinf\InstagramApi\Request\RequestDocumentMessage;
@@ -26,7 +29,7 @@ use Svalentinf\InstagramApi\Request\RequestLocationMessage;
 use Svalentinf\InstagramApi\Request\RequestOptionsListMessage;
 use Svalentinf\InstagramApi\Request\RequestStickerMessage;
 use Svalentinf\InstagramApi\Request\RequestTemplateMessage;
-use Svalentinf\InstagramApi\Request\RequestContentPublishLimit;
+use Svalentinf\InstagramApi\Request\ContentPublishLimitRequest;
 use Svalentinf\InstagramApi\Request\RequestVideoMessage;
 
 class InstagramApi
@@ -61,10 +64,10 @@ class InstagramApi
     {
         $config = array_merge([
             'instagram_user_id' => null,
-            'access_token' => '',
-            'graph_version' => static::DEFAULT_GRAPH_VERSION,
-            'client_handler' => null,
-            'timeout' => null,
+            'access_token'      => '',
+            'graph_version'     => static::DEFAULT_GRAPH_VERSION,
+            'client_handler'    => null,
+            'timeout'           => null,
         ], $config);
 
         $this->app = new InstagramApiApp($config['instagram_user_id'], $config['access_token']);
@@ -72,10 +75,11 @@ class InstagramApi
         $this->client = new Client($config['graph_version'], $config['client_handler']);
     }
 
-    public function getContentPublishingLimit()
+    public function getContentPublishingLimit(): Response
     {
 
-        $request = new RequestContentPublishLimit(
+        $request = new ContentPublishLimitRequest(
+            new EmptyContainer(),
             $this->app->accessToken(),
             $this->app->instagramUserId(),
             $this->timeout
@@ -83,236 +87,24 @@ class InstagramApi
 
         return $this->client->sendRequest($request);
     }
+
+    public function publishPost(array | Container $data = null): Response
+    {
+        if ($data instanceof Container) {
+            $request = new MediaRequest(
+                $data,
+                $this->app->accessToken(),
+                $this->app->instagramUserId(),
+                $this->timeout
+            );
+
+            return $this->client->sendRequest($request);
+        }
+    }
+
 
     /**
-     * Sends a Whatsapp text message.
-     *
-     * @param string WhatsApp ID or phone number for the person you want to send a message to.
-     * @param string The body of the text message.
-     * @param bool Determines if show a preview box for URLs contained in the text message.
-     *
-     * @throws Response\ResponseException
-     */
-    public function sendTextMessage(string $to, string $text, bool $preview_url = false): Response
-    {
-        $message = new TextMessage($to, $text, $preview_url);
-        $request = new RequestContentPublishLimit(
-            $message,
-            $this->app->accessToken(),
-            $this->app->instagramUserId(),
-            $this->timeout
-        );
-
-        return $this->client->sendRequest($request);
-    }
-
-    /**
-     * Sends a document uploaded to the WhatsApp Cloud servers by it Media ID or you also
-     * can put any public URL of some document uploaded on Internet.
-     *
-     * @param  string   $to         WhatsApp ID or phone number for the person you want to send a message to.
-     * @param  Document $document   Document to send. See documents accepted in the Message/Document folder.
-     * @return Response
-     *
-     * @throws Response\ResponseException
-     */
-    public function sendDocument(string $to, MediaID $document_id, string $name, ?string $caption): Response
-    {
-        $message = new DocumentMessage($to, $document_id, $name, $caption);
-        $request = new RequestDocumentMessage(
-            $message,
-            $this->app->accessToken(),
-            $this->app->instagramUserId(),
-            $this->timeout
-        );
-
-        return $this->client->sendRequest($request);
-    }
-
-    /**
-     * Sends a message template.
-     *
-     * @param  string         $to              WhatsApp ID or phone number for the person you want to send a message to.
-     * @param  string         $template_name   Name of the template to send.
-     * @param  string         $language        Language code
-     * @param  Component|null $component       Component parameters of a template
-     *
-     * @link https://developers.facebook.com/docs/whatsapp/api/messages/message-templates#supported-languages See language codes supported.
-     * @return Response
-     *
-     * @throws Response\ResponseException
-     */
-    public function sendTemplate(string $to, string $template_name, string $language = 'en_US', ?Component $components = null): Response
-    {
-        $message = new TemplateMessage($to, $template_name, $language, $components);
-        $request = new RequestTemplateMessage(
-            $message,
-            $this->app->accessToken(),
-            $this->app->instagramUserId(),
-            $this->timeout
-        );
-
-        return $this->client->sendRequest($request);
-    }
-
-    /**
-     * Sends a document uploaded to the WhatsApp Cloud servers by it Media ID or you also
-     * can put any public URL of some document uploaded on Internet.
-     *
-     * @param  string   $to         WhatsApp ID or phone number for the person you want to send a message to.
-     * @param  MediaId $document_id WhatsApp Media ID or any Internet public link document.
-     * @return Response
-     *
-     * @throws Response\ResponseException
-     */
-    public function sendAudio(string $to, MediaID $document_id): Response
-    {
-        $message = new AudioMessage($to, $document_id);
-        $request = new RequestAudioMessage(
-            $message,
-            $this->app->accessToken(),
-            $this->app->instagramUserId(),
-            $this->timeout
-        );
-
-        return $this->client->sendRequest($request);
-    }
-
-    /**
-     * Sends a document uploaded to the WhatsApp Cloud servers by it Media ID or you also
-     * can put any public URL of some document uploaded on Internet.
-     *
-     * @param  string   $to          WhatsApp ID or phone number for the person you want to send a message to.
-     * @param  string   $caption     Description of the specified image file.
-     * @param  MediaId  $document_id WhatsApp Media ID or any Internet public link document.
-     * @return Response
-     *
-     * @throws Response\ResponseException
-     */
-    public function sendImage(string $to, MediaID $document_id, ?string $caption = ''): Response
-    {
-        $message = new ImageMessage($to, $document_id, $caption);
-        $request = new RequestImageMessage(
-            $message,
-            $this->app->accessToken(),
-            $this->app->instagramUserId(),
-            $this->timeout
-        );
-
-        return $this->client->sendRequest($request);
-    }
-
-    /**
-     * Sends a document uploaded to the WhatsApp Cloud servers by it Media ID or you also
-     * can put any public URL of some document uploaded on Internet.
-     *
-     * @param  string   $to     WhatsApp ID or phone number for the person you want to send a message to.
-     * @param  MediaId  $document_id WhatsApp Media ID or any Internet public link document.
-     * @return Response
-     *
-     * @throws Response\ResponseException
-     */
-    public function sendVideo(string $to, MediaID $link, string $caption = ''): Response
-    {
-        $message = new VideoMessage($to, $link, $caption);
-        $request = new RequestVideoMessage(
-            $message,
-            $this->app->accessToken(),
-            $this->app->instagramUserId(),
-            $this->timeout
-        );
-
-        return $this->client->sendRequest($request);
-    }
-
-    /**
-     * Sends a sticker uploaded to the WhatsApp Cloud servers by it Media ID or you also
-     * can put any public URL of some document uploaded on Internet.
-     *
-     * @param  string   $to             WhatsApp ID or phone number for the person you want to send a message to.
-     * @param  MediaId  $document_id    WhatsApp Media ID or any Internet public link document.
-     * @return Response
-     *
-     * @throws Response\ResponseException
-     */
-    public function sendSticker(string $to, MediaID $link): Response
-    {
-        $message = new StickerMessage($to, $link);
-        $request = new RequestStickerMessage(
-            $message,
-            $this->app->accessToken(),
-            $this->app->instagramUserId(),
-            $this->timeout
-        );
-
-        return $this->client->sendRequest($request);
-    }
-
-    /**
-     * Sends a location
-     *
-     * @param  string   $to         WhatsApp ID or phone number for the person you want to send a message to.
-     * @param  float    $longitude  Longitude position.
-     * @param  float    $latitude   Latitude position.
-     * @param  string   $name       Name of location sent.
-     * @param  address  $address    Address of location sent.
-     *
-     * @return Response
-     *
-     * @throws Response\ResponseException
-     */
-    public function sendLocation(string $to, float $longitude, float $latitude, string $name = '', string $address = ''): Response
-    {
-        $message = new LocationMessage($to, $longitude, $latitude, $name, $address);
-        $request = new RequestLocationMessage(
-            $message,
-            $this->app->accessToken(),
-            $this->app->instagramUserId(),
-            $this->timeout
-        );
-
-        return $this->client->sendRequest($request);
-    }
-
-    /**
-     * Sends a contact
-     *
-     * @param  string        $to    WhatsApp ID or phone number for the person you want to send a message to.
-     * @param  ContactName   $name  The contact name object.
-     * @param  Phone|null    $phone The contact phone number.
-     *
-     * @return Response
-     *
-     * @throws Response\ResponseException
-     */
-    public function sendContact(string $to, ContactName $name, Phone ...$phone): Response
-    {
-        $message = new ContactMessage($to, $name, ...$phone);
-        $request = new RequestContactMessage(
-            $message,
-            $this->app->accessToken(),
-            $this->app->instagramUserId(),
-            $this->timeout
-        );
-
-        return $this->client->sendRequest($request);
-    }
-
-    public function sendList(string $to, string $header, string $body, string $footer, Action $action): Response
-    {
-        $message = new OptionsListMessage($to, $header, $body, $footer, $action);
-        $request = new RequestOptionsListMessage(
-            $message,
-            $this->app->accessToken(),
-            $this->app->instagramUserId(),
-            $this->timeout
-        );
-
-        return $this->client->sendRequest($request);
-    }
-
-    /**
-     * Returns the Facebook Whatsapp Access Token.
+     * Returns the Instagram Access Token.
      *
      * @return string
      */
@@ -322,7 +114,7 @@ class InstagramApi
     }
 
     /**
-     * Returns the Facebook Phone Number ID.
+     * Returns the Instagram User Id.
      *
      * @return string
      */

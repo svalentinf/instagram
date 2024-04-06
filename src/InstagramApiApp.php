@@ -15,20 +15,20 @@ class InstagramApiApp
     public const APP_TOKEN_ENV_NAME = 'INSTAGRAM_API_TOKEN';
 
     /**
-     * @const string Facebook Phone Number ID.
+     * @const string Instagram User Id.
      */
     protected string $instagram_user_id;
 
     /**
-     * @const string Facebook Whatsapp Access Token.
+     * @const string Instagram Access Token.
      */
     protected string $access_token;
 
     /**
      * Sends a Whatsapp text message.
      *
-     * @param string The Facebook Phone Number ID.
-     * @param string The Facebook Whatsapp Access Token.
+     * @param string The Instagram User Id.
+     * @param string The Instagram Access Token.
      *
      */
     public function __construct(string $instagram_user_id = null, string $access_token = null)
@@ -42,7 +42,7 @@ class InstagramApiApp
     }
 
     /**
-     * Returns the Facebook Whatsapp Access Token.
+     * Returns the Instagram Access Token.
      *
      * @return string
      */
@@ -52,7 +52,7 @@ class InstagramApiApp
     }
 
     /**
-     * Returns the Facebook Phone Number ID.
+     * Returns the Instagram User Id.
      *
      * @return string
      */
