@@ -2,48 +2,47 @@
 
 namespace Svalentinf\InstagramApi;
 
-class InstagramCloudApiApp
+class InstagramApiApp
 {
     /**
-     * @const string The name of the environment variable that contains instagram user id.
+     * @const string The name of the environment variable that contains the app from phone number ID.
      */
-    public const APP_INSTAGRAM_USER_ID_ENV_NAME = 'INSTAGRAM_CLOUD_API_INSTAGRAM_USER_ID';
+    public const APP_FROM_PHONE_NUMBER_ENV_NAME = 'INSTAGRAM_API_USER_ID';
 
     /**
      * @const string The name of the environment variable that contains the app access token.
      */
-    public const APP_TOKEN_ENV_NAME = 'INSTAGRAM_CLOUD_API_TOKEN';
+    public const APP_TOKEN_ENV_NAME = 'INSTAGRAM_API_TOKEN';
 
     /**
-     * @const string Instagram user ID.
+     * @const string Facebook Phone Number ID.
      */
     protected string $instagram_user_id;
 
     /**
-     * @const string Instagram Access Token.
+     * @const string Facebook Whatsapp Access Token.
      */
     protected string $access_token;
 
     /**
-     * Sends a Instagram.
+     * Sends a Whatsapp text message.
      *
-     * @param string $instagram_user_id The Instagram user ID.
-     * @param string $access_token The Instagram Access Token.
+     * @param string The Facebook Phone Number ID.
+     * @param string The Facebook Whatsapp Access Token.
      *
      */
-    public function __construct(?string $instagram_user_id = null, ?string $access_token = null)
+    public function __construct(string $instagram_user_id = null, string $access_token = null)
     {
         $this->loadEnv();
 
-
-        $this->instagram_user_id = $instagram_user_id ?: $_ENV[static::APP_INSTAGRAM_USER_ID_ENV_NAME] ?? null;
+        $this->instagram_user_id = $instagram_user_id ?: $_ENV[static::APP_FROM_PHONE_NUMBER_ENV_NAME] ?? null;
         $this->access_token = $access_token ?: $_ENV[static::APP_TOKEN_ENV_NAME] ?? null;
 
         $this->validate($this->instagram_user_id, $this->access_token);
     }
 
     /**
-     * Returns the Instagram Access Token.
+     * Returns the Facebook Whatsapp Access Token.
      *
      * @return string
      */
@@ -53,11 +52,11 @@ class InstagramCloudApiApp
     }
 
     /**
-     * Returns the Instagram User ID.
+     * Returns the Facebook Phone Number ID.
      *
      * @return string
      */
-    public function fromInstagramUserId(): string
+    public function instagramUserId(): string
     {
         return $this->instagram_user_id;
     }

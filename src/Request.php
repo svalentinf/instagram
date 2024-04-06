@@ -2,8 +2,6 @@
 
 namespace Svalentinf\InstagramApi;
 
-use Svalentinf\InstagramApi\Message\Message;
-
 abstract class Request
 {
     /**
@@ -11,10 +9,6 @@ abstract class Request
      */
     public const DEFAULT_REQUEST_TIMEOUT = 60;
 
-    /**
-     * @var Message Instagram Message to be sent.
-     */
-    protected Message $message;
 
     /**
      * @var string The access token to use for this request.
@@ -22,7 +16,7 @@ abstract class Request
     protected string $access_token;
 
     /**
-     * @var string Instagram Number Id from messages will sent.
+     * @var string WhatsApp Number Id from messages will sent.
      */
     protected string $instagram_user_id;
 
@@ -47,7 +41,10 @@ abstract class Request
      */
     protected int $timeout;
 
-    public ?string $action = null;
+    public string $method = 'post';
+
+    public string $action = '';
+
 
     /**
      * Creates a new Request entity.
@@ -55,15 +52,34 @@ abstract class Request
      * @param Message $message
      * @param string  $access_token
      */
-    public function __construct(Message $message, string $access_token, string $instagram_user_id, ?int $timeout = null)
+    public function __construct(string $access_token, string $instagram_user_id, ?int $timeout = null)
     {
-        $this->message = $message;
         $this->access_token = $access_token;
         $this->instagram_user_id = $instagram_user_id;
         $this->timeout = $timeout ?? static::DEFAULT_REQUEST_TIMEOUT;
 
-        $this->prepareRequest();
+        $this->makeBody();
         $this->encodeBody();
+    }
+
+    /**
+     * Returns the raw body of the request.
+     *
+     * @return array
+     */
+    public function body(): array
+    {
+        return $this->body;
+    }
+
+    /**
+     * Returns the body of the request encoded.
+     *
+     * @return string
+     */
+    public function encodedBody(): string
+    {
+        return $this->encoded_body;
     }
 
     /**
@@ -90,11 +106,11 @@ abstract class Request
     }
 
     /**
-     * Return Instagram Number Id for this request.
+     * Return WhatsApp Number Id for this request.
      *
      * @return string
      */
-    public function fromInstagramUserId(): string
+    public function instagramUserId(): string
     {
         return $this->instagram_user_id;
     }
@@ -112,8 +128,17 @@ abstract class Request
     /**
      * Makes the raw body of the request.
      *
-     * @return void
+     * @return array
      */
-    abstract protected function prepareRequest(): void;
+    abstract protected function makeBody(): void;
 
+    /**
+     * Encodes the raw body of the request.
+     *
+     * @return array
+     */
+    private function encodeBody(): void
+    {
+        $this->encoded_body = json_encode($this->body());
+    }
 }

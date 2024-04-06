@@ -40,15 +40,17 @@ class Client
      *
      * @return Response Raw response from the server.
      *
-     * @throws Instagram\Response\ResponseException
+     * @throws Svalentinf\InstagramApi\Response\ResponseException
      */
     public function sendRequest(Request $request): Response
     {
+
         $raw_response = $this->handler->send(
             $this->buildRequestUri($request),
             $request->encodedBody(),
             $request->headers(),
-            $request->timeout()
+            $request->timeout(),
+            $request->method ?? 'post',
         );
 
         $return_response = new Response(
@@ -77,6 +79,6 @@ class Client
 
     private function buildRequestUri(Request $request): string
     {
-        return $this->buildBaseUri() . '/' . $request->fromInstagramUserId() . '/' . $request->action;
+        return $this->buildBaseUri() . '/' . $request->instagramUserId(). '/'.$request->action;
     }
 }
