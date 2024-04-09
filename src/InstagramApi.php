@@ -13,13 +13,16 @@ use Svalentinf\InstagramApi\Container\EmptyContainer;
 use Svalentinf\InstagramApi\Container\ImageMessage;
 use Svalentinf\InstagramApi\Container\LocationMessage;
 use Svalentinf\InstagramApi\Container\Media\MediaID;
+use Svalentinf\InstagramApi\Container\MediaPublishContainer;
 use Svalentinf\InstagramApi\Container\OptionsList\Action;
 use Svalentinf\InstagramApi\Container\OptionsListMessage;
+use Svalentinf\InstagramApi\Container\SearchPageContainer;
 use Svalentinf\InstagramApi\Container\StickerMessage;
 use Svalentinf\InstagramApi\Container\Template\Component;
 use Svalentinf\InstagramApi\Container\TemplateMessage;
 use Svalentinf\InstagramApi\Container\ImageContainer;
 use Svalentinf\InstagramApi\Container\VideoContainer;
+use Svalentinf\InstagramApi\Request\MediaPublishRequest;
 use Svalentinf\InstagramApi\Request\MediaRequest;
 use Svalentinf\InstagramApi\Request\RequestAudioMessage;
 use Svalentinf\InstagramApi\Request\RequestContactMessage;
@@ -31,13 +34,14 @@ use Svalentinf\InstagramApi\Request\RequestStickerMessage;
 use Svalentinf\InstagramApi\Request\RequestTemplateMessage;
 use Svalentinf\InstagramApi\Request\ContentPublishLimitRequest;
 use Svalentinf\InstagramApi\Request\RequestVideoMessage;
+use Svalentinf\InstagramApi\Request\SearchPageRequest;
 
 class InstagramApi
 {
     /**
      * @const string Default Graph API version.
      */
-    public const DEFAULT_GRAPH_VERSION = 'v17.0';
+    public const DEFAULT_GRAPH_VERSION = 'v19.0';
 
     /**
      * @var InstagramApiApp The InstagramApiApp entity.
@@ -88,17 +92,71 @@ class InstagramApi
         return $this->client->sendRequest($request);
     }
 
+    public function getSearchPage($q): Response
+    {
+        $request = new SearchPageRequest(
+            container: new SearchPageContainer($q),
+            access_token: $this->app->accessToken(),
+            timeout: $this->timeout
+        );
+
+        return $this->client->sendRequest($request);
+    }
+
     public function publishPost(array | Container $data = null): Response
     {
         if ($data instanceof Container) {
-            $request = new MediaRequest(
+            $mediaRequest = new MediaRequest(
                 $data,
                 $this->app->accessToken(),
                 $this->app->instagramUserId(),
                 $this->timeout
             );
+            $mediaId = $this->client->sendRequest($mediaRequest)->decodedBody()['id'];
+        } else {
+            foreach ($data as $container) {
+                //set it as
+                $container->addToBody('is_carousel_item', 1);
+                $mediaRequest = new MediaRequest(
+                    $container,
+                    $this->app->accessToken(),
+                    $this->app->instagramUserId(),
+                    $this->timeout
+                );
+                $mediaId = $this->client->sendRequest($mediaRequest)->decodedBody()['id'];
+            }
+        }
 
-            return $this->client->sendRequest($request);
+        $mediaRequest = new MediaPublishRequest(
+            new MediaPublishContainer($mediaId ?? ''),
+            $this->app->accessToken(),
+            $this->app->instagramUserId(),
+            $this->timeout
+        );
+
+        return $this->client->sendRequest($mediaRequest);
+    }
+
+    public function publishStory(array | Container $data = null): Response
+    {
+        if ($data instanceof Container) {
+            $data->addToBody('media_type', 'STORIES');
+            $mediaRequest = new MediaRequest(
+                $data,
+                $this->app->accessToken(),
+                $this->app->instagramUserId(),
+                $this->timeout
+            );
+            $mediaId = $this->client->sendRequest($mediaRequest)->decodedBody()['id'];
+//            $mediaId = 18303971710198963;
+            $mediaRequest = new MediaPublishRequest(
+                new MediaPublishContainer($mediaId),
+                $this->app->accessToken(),
+                $this->app->instagramUserId(),
+                $this->timeout
+            );
+
+            return $this->client->sendRequest($mediaRequest);
         }
     }
 

@@ -20,7 +20,7 @@ abstract class Request
     /**
      * @var string WhatsApp Number Id from messages will sent.
      */
-    protected string $instagram_user_id;
+    protected ?string $instagram_user_id = null;
 
     /**
      * The raw body request.
@@ -55,7 +55,7 @@ abstract class Request
      * @param Container $container
      * @param string    $access_token
      */
-    public function __construct(Container $container, string $access_token, string $instagram_user_id, ?int $timeout = null)
+    public function __construct(Container $container, string $access_token, string $instagram_user_id = null, ?int $timeout = null)
     {
         $this->container = $container;
         $this->access_token = $access_token;
@@ -112,9 +112,9 @@ abstract class Request
     /**
      * Return WhatsApp Number Id for this request.
      *
-     * @return string
+     * @return string|null
      */
-    public function instagramUserId(): string
+    public function instagramUserId(): ?string
     {
         return $this->instagram_user_id;
     }

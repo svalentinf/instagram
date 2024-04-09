@@ -30,10 +30,6 @@ class ImageContainer extends Container
             $this->body['product_tags'] = $product_tags;
         }
 
-        echo "<div><pre>".__FILE__ ." " .__LINE__."\n\r";
-        dump($this->body);
-        echo "</pre></div>";
-
     }
 
     /**

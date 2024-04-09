@@ -79,7 +79,13 @@ class Client
 
     private function buildRequestUri(Request $request): string
     {
+        //Based on the request type instagram user might be optional
         //send body as shit!
-        return $this->buildBaseUri() . '/' . $request->instagramUserId() . '/' . $request->action . "?" . http_build_query($request->body());;
+        if ($request->instagramUserId()) {
+            return $this->buildBaseUri() . '/' . $request->instagramUserId() . '/' . $request->action . "?" . http_build_query($request->body());;
+        } else {
+
+            return $this->buildBaseUri() . '/' . $request->action . "?" . http_build_query($request->body());;
+        }
     }
 }

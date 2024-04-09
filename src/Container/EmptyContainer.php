@@ -12,14 +12,4 @@ class EmptyContainer extends Container
     {
     }
 
-    /**
-     * Return the body of the text message.
-     *
-     * @return string
-     */
-    public function text(): string
-    {
-        return $this->text;
-    }
-
 }

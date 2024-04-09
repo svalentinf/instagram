@@ -54,9 +54,9 @@ class InstagramApiApp
     /**
      * Returns the Instagram User Id.
      *
-     * @return string
+     * @return string|null
      */
-    public function instagramUserId(): string
+    public function instagramUserId(): ?string
     {
         return $this->instagram_user_id;
     }

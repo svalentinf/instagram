@@ -16,4 +16,9 @@ abstract class Container
     {
         return $this->body;
     }
+
+    public function addToBody($key, $value)
+    {
+        return $this->body[$key] = $value;
+    }
 }
