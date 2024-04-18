@@ -208,7 +208,7 @@ class InstagramApi
                 $this->timeout
             );
             $mediaId = $this->getClientFacebook()->sendRequest($mediaRequest)->decodedBody()['id'];
-//            $mediaId = 18303971710198963;
+
             $mediaRequest = new MediaPublishRequest(
                 new MediaPublishContainer($mediaId),
                 $this->app->accessToken(),
