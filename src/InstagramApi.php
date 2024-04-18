@@ -24,6 +24,7 @@ use Svalentinf\InstagramApi\Container\ImageContainer;
 use Svalentinf\InstagramApi\Container\VideoContainer;
 use Svalentinf\InstagramApi\Request\MediaPublishRequest;
 use Svalentinf\InstagramApi\Request\MediaRequest;
+use Svalentinf\InstagramApi\Request\MyAccountsRequest;
 use Svalentinf\InstagramApi\Request\RequestAudioMessage;
 use Svalentinf\InstagramApi\Request\RequestContactMessage;
 use Svalentinf\InstagramApi\Request\RequestDocumentMessage;
@@ -49,12 +50,12 @@ class InstagramApi
     protected InstagramApiApp $app;
 
     /**
-     * @var Client The WhatsApp Cloud Api client service.
+     * @var Client The Instagram Cloud Api client service.
      */
     protected Client $client;
 
     /**
-     * @var int The WhatsApp Cloud Api client timeout.
+     * @var int The Instagram Cloud Api client timeout.
      */
     protected ?int $timeout;
 
@@ -79,6 +80,12 @@ class InstagramApi
         $this->client = new Client($config['graph_version'], $config['client_handler']);
     }
 
+
+    public function setInstagramUserId(string $instagram_user_id)
+    {
+        $this->app->setInstagramUserId($instagram_user_id);
+    }
+
     public function getContentPublishingLimit(): Response
     {
 
@@ -101,6 +108,18 @@ class InstagramApi
         );
 
         return $this->client->sendRequest($request);
+    }
+
+    public function getMyAccounts(): Response
+    {
+        $request = new MyAccountsRequest(
+            container: new EmptyContainer(),
+            access_token: $this->app->accessToken(),
+            timeout: $this->timeout
+        );
+
+        return $this->client->sendRequest($request);
+
     }
 
     public function publishPost(array | Container $data = null): Response

@@ -18,7 +18,7 @@ abstract class Request
     protected string $access_token;
 
     /**
-     * @var string WhatsApp Number Id from messages will sent.
+     * @var string Instagram user Id from messages will sent.
      */
     protected ?string $instagram_user_id = null;
 
@@ -110,7 +110,7 @@ abstract class Request
     }
 
     /**
-     * Return WhatsApp Number Id for this request.
+     * Return Instagram user Id for this request.
      *
      * @return string|null
      */

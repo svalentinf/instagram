@@ -25,7 +25,6 @@ class InstagramApiApp
     protected string $access_token;
 
     /**
-     * Sends a Whatsapp text message.
      *
      * @param string The Instagram User Id.
      * @param string The Instagram Access Token.
@@ -59,6 +58,11 @@ class InstagramApiApp
     public function instagramUserId(): ?string
     {
         return $this->instagram_user_id;
+    }
+
+    public function setInstagramUserId(string $instagram_user_id): void
+    {
+        $this->instagram_user_id = $instagram_user_id;
     }
 
     private function validate(string $instagram_user_id, string $access_token): void
