@@ -5,12 +5,12 @@ namespace Svalentinf\InstagramApi;
 use Svalentinf\InstagramApi\Http\ClientHandler;
 use Svalentinf\InstagramApi\Http\GuzzleClientHandler;
 
-class Client
+class ClientInstagram
 {
     /**
      * @const string Production Graph API URL.
      */
-    public const BASE_GRAPH_URL = 'https://graph.facebook.com';
+    public const BASE_GRAPH_URL = 'https://graph.instagram.com';
 
     /**
      * @var ClientHandler The HTTP client handler to send the request.
@@ -74,18 +74,12 @@ class Client
 
     private function buildBaseUri(): string
     {
-        return self::BASE_GRAPH_URL . '/' . $this->graph_version;
+
+        return self::BASE_GRAPH_URL . '/';
     }
 
     private function buildRequestUri(Request $request): string
     {
-        //Based on the request type instagram user might be optional
-        //send body as shit!
-        if ($request->instagramUserId()) {
-            return $this->buildBaseUri() . '/' . $request->instagramUserId() . '/' . $request->action . "?" . http_build_query($request->body());;
-        } else {
-
-            return $this->buildBaseUri() . '/' . $request->action . "?" . http_build_query($request->body());;
-        }
+        return $this->buildBaseUri() . $request->action . "?" . http_build_query($request->body());;
     }
 }

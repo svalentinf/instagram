@@ -25,14 +25,17 @@ class InstagramApi
     protected InstagramApiApp $app;
 
     /**
-     * @var Client The Instagram Cloud Api client service.
+     * @var ClientFacebook The Instagram Cloud Api client service.
      */
-    protected Client $client;
+    protected ClientFacebook $clientFacebook;
+    protected ClientInstagram | null $clientInstagram = null;
 
     /**
      * @var int The Instagram Cloud Api client timeout.
      */
     protected ?int $timeout;
+
+    protected array $config = [];
 
     /**
      * Instantiates a new InstagramApi super-class object.
@@ -42,7 +45,7 @@ class InstagramApi
      */
     public function __construct(array $config)
     {
-        $config = array_merge([
+        $this->config = array_merge([
             'instagram_user_id' => null,
             'access_token'      => '',
             'graph_version'     => static::DEFAULT_GRAPH_VERSION,
@@ -50,9 +53,24 @@ class InstagramApi
             'timeout'           => null,
         ], $config);
 
-        $this->app = new InstagramApiApp($config['instagram_user_id'], $config['access_token']);
-        $this->timeout = $config['timeout'];
-        $this->client = new Client($config['graph_version'], $config['client_handler']);
+        $this->app = new InstagramApiApp($this->config['instagram_user_id'], $this->config['access_token']);
+        $this->timeout = $this->config['timeout'];
+
+        $this->clientFacebook = new ClientFacebook($this->config['graph_version'], $this->config['client_handler']);
+    }
+
+    public function getClientFacebook(): ClientFacebook
+    {
+        return $this->clientFacebook;
+    }
+
+    public function getClientInstagram(): ClientInstagram
+    {
+        if (!$this->clientInstagram) {
+            $this->clientInstagram = new ClientInstagram($this->config['graph_version']);
+        }
+
+        return $this->clientInstagram;
     }
 
 
@@ -71,7 +89,7 @@ class InstagramApi
             $this->timeout
         );
 
-        return $this->client->sendRequest($request);
+        return $this->getClientFacebook()->sendRequest($request);
     }
 
     public function getSearchPage($q): Response
@@ -82,7 +100,7 @@ class InstagramApi
             timeout: $this->timeout
         );
 
-        return $this->client->sendRequest($request);
+        return $this->getClientFacebook()->sendRequest($request);
     }
 
     public function getMyAccounts(): Response
@@ -93,8 +111,43 @@ class InstagramApi
             timeout: $this->timeout
         );
 
-        return $this->client->sendRequest($request);
+        return $this->getClientFacebook()->sendRequest($request);
 
+    }
+
+    public function exchangeAccessToken(string $clientSecret): Response
+    {
+        $request = new MyAccountsRequest(
+            container: new EmptyContainer([
+                'grant_type'    => 'ig_exchange_token',
+                'client_secret' => $clientSecret,
+            ]),
+            access_token: $this->app->accessToken(),
+            timeout: $this->timeout
+        );
+        $request->setAction('access_token');
+
+        echo "<div><pre>" . __FILE__ . " " . __LINE__ . "\n\r";
+        dump($request);
+        echo "</pre></div>";
+
+        return $this->getClientInstagram()->sendRequest($request);
+    }
+
+    public function extendAccessToken(string $clientSecret): Response
+    {
+        $request = new MyAccountsRequest(
+            container: new EmptyContainer([
+                'grant_type'    => 'ig_refresh_token',
+                'client_secret' => $clientSecret,
+            ]),
+            access_token: $this->app->accessToken(),
+            timeout: $this->timeout
+        );
+        $request->setAction('refresh_access_token');
+
+
+        return $this->getClientInstagram()->sendRequest($request);
     }
 
     public function getInstagramBusinessAccountByPageId(string $id): Response
@@ -106,7 +159,7 @@ class InstagramApi
         );
         $request->setAction($id);
 
-        return $this->client->sendRequest($request);
+        return $this->getClientFacebook()->sendRequest($request);
 
     }
 
@@ -119,7 +172,7 @@ class InstagramApi
                 $this->app->instagramUserId(),
                 $this->timeout
             );
-            $mediaId = $this->client->sendRequest($mediaRequest)->decodedBody()['id'];
+            $mediaId = $this->getClientFacebook()->sendRequest($mediaRequest)->decodedBody()['id'];
         } else {
             foreach ($data as $container) {
                 //set it as
@@ -130,7 +183,7 @@ class InstagramApi
                     $this->app->instagramUserId(),
                     $this->timeout
                 );
-                $mediaId = $this->client->sendRequest($mediaRequest)->decodedBody()['id'];
+                $mediaId = $this->getClientFacebook()->sendRequest($mediaRequest)->decodedBody()['id'];
             }
         }
 
@@ -141,7 +194,7 @@ class InstagramApi
             $this->timeout
         );
 
-        return $this->client->sendRequest($mediaRequest);
+        return $this->getClientFacebook()->sendRequest($mediaRequest);
     }
 
     public function publishStory(array | Container $data = null): Response
@@ -154,7 +207,7 @@ class InstagramApi
                 $this->app->instagramUserId(),
                 $this->timeout
             );
-            $mediaId = $this->client->sendRequest($mediaRequest)->decodedBody()['id'];
+            $mediaId = $this->getClientFacebook()->sendRequest($mediaRequest)->decodedBody()['id'];
 //            $mediaId = 18303971710198963;
             $mediaRequest = new MediaPublishRequest(
                 new MediaPublishContainer($mediaId),
@@ -163,7 +216,7 @@ class InstagramApi
                 $this->timeout
             );
 
-            return $this->client->sendRequest($mediaRequest);
+            return $this->getClientFacebook()->sendRequest($mediaRequest);
         }
     }
 
