@@ -17,20 +17,19 @@ class InstagramApiApp
     /**
      * @const string Instagram User Id.
      */
-    protected string $instagram_user_id;
+    protected string | null $instagram_user_id;
 
     /**
      * @const string Instagram Access Token.
      */
-    protected string $access_token;
+    protected string | null $access_token;
 
     /**
      *
-     * @param string The Instagram User Id.
-     * @param string The Instagram Access Token.
-     *
+     * @param string|null $instagram_user_id
+     * @param string|null $access_token
      */
-    public function __construct(string $instagram_user_id = null, string $access_token = null)
+    public function __construct(string | null $instagram_user_id = null, string $access_token = null)
     {
         $this->loadEnv();
 
@@ -65,7 +64,7 @@ class InstagramApiApp
         $this->instagram_user_id = $instagram_user_id;
     }
 
-    private function validate(string $instagram_user_id, string $access_token): void
+    private function validate(string | null $instagram_user_id, string | null $access_token): void
     {
         // validate by function type hinting
     }
