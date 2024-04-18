@@ -8,8 +8,9 @@ class EmptyContainer extends Container
      * Creates a new message of type text.
      *
      */
-    public function __construct()
+    public function __construct($body = [])
     {
+        $this->body = $body;
     }
 
 }

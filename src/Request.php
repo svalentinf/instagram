@@ -145,4 +145,12 @@ abstract class Request
     {
         $this->encoded_body = json_encode($this->body());
     }
+
+
+    public function setAction(string $action): self
+    {
+
+        $this->action = $action;
+        return $this;
+    }
 }

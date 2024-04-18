@@ -2,39 +2,14 @@
 
 namespace Svalentinf\InstagramApi;
 
-use Svalentinf\InstagramApi\Container\AudioMessage;
-use Svalentinf\InstagramApi\Container\Contact\ContactName;
-use Svalentinf\InstagramApi\Container\Contact\Phone;
-use Svalentinf\InstagramApi\Container\ContactMessage;
 use Svalentinf\InstagramApi\Container\Container;
-use Svalentinf\InstagramApi\Container\Document\Document;
-use Svalentinf\InstagramApi\Container\DocumentMessage;
 use Svalentinf\InstagramApi\Container\EmptyContainer;
-use Svalentinf\InstagramApi\Container\ImageMessage;
-use Svalentinf\InstagramApi\Container\LocationMessage;
-use Svalentinf\InstagramApi\Container\Media\MediaID;
 use Svalentinf\InstagramApi\Container\MediaPublishContainer;
-use Svalentinf\InstagramApi\Container\OptionsList\Action;
-use Svalentinf\InstagramApi\Container\OptionsListMessage;
 use Svalentinf\InstagramApi\Container\SearchPageContainer;
-use Svalentinf\InstagramApi\Container\StickerMessage;
-use Svalentinf\InstagramApi\Container\Template\Component;
-use Svalentinf\InstagramApi\Container\TemplateMessage;
-use Svalentinf\InstagramApi\Container\ImageContainer;
-use Svalentinf\InstagramApi\Container\VideoContainer;
 use Svalentinf\InstagramApi\Request\MediaPublishRequest;
 use Svalentinf\InstagramApi\Request\MediaRequest;
 use Svalentinf\InstagramApi\Request\MyAccountsRequest;
-use Svalentinf\InstagramApi\Request\RequestAudioMessage;
-use Svalentinf\InstagramApi\Request\RequestContactMessage;
-use Svalentinf\InstagramApi\Request\RequestDocumentMessage;
-use Svalentinf\InstagramApi\Request\RequestImageMessage;
-use Svalentinf\InstagramApi\Request\RequestLocationMessage;
-use Svalentinf\InstagramApi\Request\RequestOptionsListMessage;
-use Svalentinf\InstagramApi\Request\RequestStickerMessage;
-use Svalentinf\InstagramApi\Request\RequestTemplateMessage;
 use Svalentinf\InstagramApi\Request\ContentPublishLimitRequest;
-use Svalentinf\InstagramApi\Request\RequestVideoMessage;
 use Svalentinf\InstagramApi\Request\SearchPageRequest;
 
 class InstagramApi
@@ -117,6 +92,19 @@ class InstagramApi
             access_token: $this->app->accessToken(),
             timeout: $this->timeout
         );
+
+        return $this->client->sendRequest($request);
+
+    }
+
+    public function getInstagramBusinessAccountByPageId(string $id): Response
+    {
+        $request = new MyAccountsRequest(
+            container: new EmptyContainer(['fields' => 'instagram_business_account']),
+            access_token: $this->app->accessToken(),
+            timeout: $this->timeout
+        );
+        $request->setAction($id);
 
         return $this->client->sendRequest($request);
 
